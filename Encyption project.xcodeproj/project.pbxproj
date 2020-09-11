@@ -25,6 +25,7 @@
 /* Begin PBXFileReference section */
 		7EFC821E250BC0EF00D8AB86 /* Encyption project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Encyption project"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7EFC8221250BC0EF00D8AB86 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		7EFC8228250BD63300D8AB86 /* Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Header.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +42,7 @@
 		7EFC8215250BC0EF00D8AB86 = {
 			isa = PBXGroup;
 			children = (
+				7EFC8228250BD63300D8AB86 /* Header.h */,
 				7EFC8220250BC0EF00D8AB86 /* Encyption project */,
 				7EFC821F250BC0EF00D8AB86 /* Products */,
 			);
