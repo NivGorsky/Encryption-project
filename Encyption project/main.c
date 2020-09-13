@@ -13,11 +13,16 @@
 
 //-------------------declaratinos------------------------//
 void appManager(char* txtFile);
-void encrypt(char* txtFile);
-void decrypt(char* txtFile);
+void encrypt(char* filePath, char** board);
+void decrypt(char* filePath, char** board);
 char** createBoard(void);
+char* getWordFromUser(void);
+int getFileSize(FILE* stream);
+char* getTextFromFile(FILE* stream, int size);
+void writeBackToFile(char* text, FILE* stream);
 
-
+void encryption(char* text,char** board,char* word);
+void decryption(char* text,char** board,char* word);
 
 
 
@@ -26,7 +31,7 @@ int main(int argc, char * argv[]) {
     
    
     
-    appManager(argv[1]);
+    appManager(argv[1]); //צריך לראות אם משאירים ככה או שמבקשים מהמשתמש אחר כך להכניס מילה
     return 0;
     
     
@@ -40,32 +45,57 @@ int main(int argc, char * argv[]) {
 void appManager(char* txtFile){
     
     int in;
-    char** Board = createBoard();
+    char** board = createBoard();
+    char filePath[30];
     
-    printf("Welcome. Please choose from the following:/n For encyprtion press 1/n for decryption press 0\n");
-    scanf("%d", in);
+    printf("Welcome. Please enter file path:");
+    scanf("%s", filePath);
+    
+    printf("\nChoose from the following:\n For encyprtion press 1/n for decryption press 0\n");
+    scanf("%d", &in);
     
     if(in)
-        encrypt(txtFile);
+        encrypt(filePath,board);
     
     else
-        decrypt(txtFile);
+        decrypt(filePath,board);
     
     printf("Finished the process:\n");
 }
 
-void encrypt(char* txtFile){
+void encrypt(char* filePath, char** board){
+    printf("Please enter encryption word (word can't contain letters that occude more than once)\n");
+    
+    FILE* stream = fopen(filePath,"r+");
+    char* word = getWordFromUser();
+    int fileSize = getFileSize(stream);
+    char* text = getTextFromFile(stream, fileSize);
+    
+    encryption(text, board, word);
+    
+    writeBackToFile(text,stream);
     
 }
 
-void decrypt(char* txtFile){
+void decrypt(char* filePath, char** board){
+    printf("Please enter an encryption word (word can't contain letters that occude more than once)\n");
+    
+    FILE* stream = fopen(filePath,"r+");
+    char* word = getWordFromUser();
+    int fileSize = getFileSize(stream);
+    char* text = getTextFromFile(stream, fileSize);
+    
+    decryption(text,board,word);
+    
+    writeBackToFile(text,stream);
     
 }
 
 char** createBoard(void)
 {
     //Assuming the language is English, building 26*26 board
-    int numLetters = ENGLISH, i,j;
+    int numLetters = ENGLISH
+    int i,j;
     char** board;
     char letter;
     
