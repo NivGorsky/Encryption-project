@@ -14,7 +14,8 @@
 
 
 #define ENGLISH 26;
-
+#define MAXPATHLEN 30
+#define MAXWORD 26
 
 
 #endif /* Header_h */
