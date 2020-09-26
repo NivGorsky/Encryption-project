@@ -11,11 +11,12 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
-
-#define ENGLISH 26;
+#define ASCII 95;
 #define MAXPATHLEN 30
 #define MAXWORD 26
+#define ENGLISH 26
 
 
 #endif /* Header_h */
