@@ -1,70 +1,38 @@
 //
-//  main.c
+//  encryptionC.c
 //  Encyption project
-//  Created by ניב גורסקי on 11/09/2020.
+//
+//  Created by ניב גורסקי on 26/09/2020.
 //  Copyright © 2020 niv. All rights reserved.
 //
 
+#include "encryptionC.h"
+//-------------------Function Prototypes------------------------//
 
-//בעיה במערך דליים שבודק את המילה - יש הבדל אם זאת אות קטנה או גדולה
-//אינקלודים רלוונטים בהאדר - למשל בשביל המאלוק
-
-
-#include "Header.h"
-
-
-//-------------------declaratinos------------------------//
-void appManager(char* txtFile);
-void Encrypt(char* filePath, char** board);
-void decrypt(char* filePath, char** board);
-
-char** createBoard(void);
-char* getWordFromUser(void);
-long int getFileSize(FILE* stream);
-char* getTextFromFile(FILE* stream, long int size);
-void writeBackToFile(char* text, FILE* stream,long int fileSize);
-
-void encryption(char* text,char** board,char* word);
-void decryption(char* text,char** board,char* word);
-int wordIsValid(char* word);
-int getOffset(char** board,int j,int k);
+//private
+static char* getWordFromUser(void);
+static char** createBoard(void);
+static int wordIsValid(char* word);
+static long int getFileSize(FILE* stream);
+static char* getTextFromFile(FILE* stream, long int size);
+static void encryption(char* text,char** board,char* word);
+static void decryption(char* text,char** board,char* word);
+static void myFreeBoard(char** board);
+static void writeBackToFile(char* text, FILE* stream,long int fileSize);
+static int getOffset(char** board,int j,int k);
+//debugging
+static void printBoard(char** board);
+static void createBoardInFile(char** board);
 
 
-void myFreeBoard(char** board);
+//----------------IMPLEMENTATIONS---------------------//
 
-
-
-///פונקציות לבדיקה
-void printBoard(char** board);
-void createBoardInFile(char** board);
-///
-
-
-
-int main(int argc, char * argv[]) {
-    
-   
-    
-    appManager(argv[1]); //צריך לראות אם משאירים ככה או שמבקשים מהמשתמש אחר כך להכניס מילה
-    return 0;
-    
-    
-   
-}
-
-
-
-
-//----------------implementations---------------------//
-void appManager(char* txtFile){
+//public
+void appManager(void){
     
     int in;
     char** board = createBoard();
     char filePath[100];
-    //createBoardInFile(board);
-    
-    
-    
 
     printf("Welcome. Please enter file path:");
     scanf("%s", filePath);
@@ -72,48 +40,40 @@ void appManager(char* txtFile){
     printf("\nChoose from the following:\nFor encyprtion press 1\nFor decryption press 0\n");
     scanf("%d", &in);
     
-   
-
     if(in)
         Encrypt(filePath,board);
 
     else
         decrypt(filePath,board);
 
-
-
-
-
     printf("Finished the process:\n");
     myFreeBoard(board);
 }
-
 void Encrypt(char* filePath, char** board){
 
 
-    FILE* stream = fopen(filePath,"r+");
-    if(!stream)
-    
-        printf("\nfile opening eror");
-    
-    
-    char* word = getWordFromUser();
-    long int fileSize = getFileSize(stream);
-    char* text = getTextFromFile(stream, fileSize);
+FILE* stream = fopen(filePath,"r+");
+if(!stream)
 
-    encryption(text, board, word);
-    //
-    printf("\n\n||%s||\n\n",text);
+    printf("\nfile opening eror");
 
-    
-    writeBackToFile(text,stream,fileSize);
-    fclose(stream);
 
-    free(text);
-    free(word);
+char* word = getWordFromUser();
+long int fileSize = getFileSize(stream);
+char* text = getTextFromFile(stream, fileSize);
+
+encryption(text, board, word);
+//
+printf("\n\n||%s||\n\n",text);
+
+
+writeBackToFile(text,stream,fileSize);
+fclose(stream);
+
+free(text);
+free(word);
 
 }
-
 void decrypt(char* filePath, char** board){
 
     FILE* stream = fopen(filePath,"r+");
@@ -130,8 +90,29 @@ void decrypt(char* filePath, char** board){
 
 }
 
-char** createBoard(void)
-{
+//private
+static char* getWordFromUser(void){
+
+
+    char* word = (char*)malloc(MAXWORD* sizeof(char));  //allocating an array for the word
+    int flag = 1;
+
+    printf("Please enter encryption word (word can't contain letters that occure more than once)\n");
+    while(flag)
+    {
+     scanf("%s", word);
+     if(wordIsValid(word)) //checking if the word is valid
+        flag = 0;
+
+     else
+        printf("please enter a valid word\n");
+    }
+
+    return word;
+
+}
+static char** createBoard(void){
+
     //building 127*127 board (according to ascii table)
     int numLetters = ASCII;
     int i,j;
@@ -158,30 +139,8 @@ char** createBoard(void)
     return board;
     
 }
+static int wordIsValid(char* word){
 
-char* getWordFromUser(void){
-
-
-    char* word = (char*)malloc(MAXWORD* sizeof(char));  //allocating an array for the word
-    int flag = 1;
-
-    printf("Please enter encryption word (word can't contain letters that occure more than once)\n");
-    while(flag)
-    {
-     scanf("%s", word);
-     if(wordIsValid(word)) //checking if the word is valid
-        flag = 0;
-
-     else
-        printf("please enter a valid word\n");
-    }
-
-    return word;
-
-}
-
-int wordIsValid(char* word)
-{
     char counter [95] = {};
     int i = 0;
     char letter;
@@ -199,9 +158,8 @@ int wordIsValid(char* word)
     return 1;
 
 }
+static long int getFileSize(FILE* stream){
 
-long int getFileSize(FILE* stream)
-{
     long int bytes;
     fseek(stream,0,SEEK_END);
 
@@ -210,9 +168,8 @@ long int getFileSize(FILE* stream)
 
     return bytes;
 }
+static char* getTextFromFile(FILE* stream, long int size){
 
-char* getTextFromFile(FILE* stream, long int size)
-{
     long int i;
     char* text = (char*)malloc(size+1* sizeof(char));
     
@@ -224,9 +181,8 @@ char* getTextFromFile(FILE* stream, long int size)
     
     return text;
 }
+static void encryption(char* text,char** board,char* word){
 
-void encryption(char* text,char** board,char* word)
-{
     int i = 0,l = 0;
     char j,k;
 
@@ -244,9 +200,8 @@ void encryption(char* text,char** board,char* word)
             l = 0;
     }
 }
+static void decryption(char* text,char** board,char* word){
 
-void decryption(char* text,char** board,char* word)
-{
     
     int i = 0,l = 0,m;
     char j,k;
@@ -276,9 +231,8 @@ void decryption(char* text,char** board,char* word)
     }
     
 }
+static void myFreeBoard(char** board){
 
-void myFreeBoard(char** board)
-{
     int i,k = ASCII;
     
     for(i=0;i<k;i++)
@@ -289,25 +243,8 @@ void myFreeBoard(char** board)
     free(board);
     
 }
+static void writeBackToFile(char* text, FILE* stream,long int fileSize){
 
-
-void printBoard(char** board)
-{
-    int i,j, k = ASCII;
-    
-    for(i=0;i<68;i++)
-    {
-        for(j=0;j<68;j++)
-        {
-            printf("|%c", board[i][j]);
-        }
-        printf("\n\n");
-    }
-}
-
-
-void writeBackToFile(char* text, FILE* stream,long int fileSize)
-{
     rewind(stream);
     int i =0;
     for(i=0;i<fileSize;i++)
@@ -317,9 +254,8 @@ void writeBackToFile(char* text, FILE* stream,long int fileSize)
     }
     
 }
+static int getOffset(char** board,int j,int k){
 
-int getOffset(char** board,int j,int k)
-{
     int m;
     
     if(j>=k)
@@ -332,48 +268,42 @@ int getOffset(char** board,int j,int k)
     return m;
 }
 
-void createBoardInFile(char** board)
-{
+//debugging
+static void printBoard(char** board){
+
+    int i,j;
+    
+    for(i=0;i<68;i++)
+    {
+        for(j=0;j<68;j++)
+        {
+            printf("|%c", board[i][j]);
+        }
+        printf("\n\n");
+    }
+}
+static void createBoardInFile(char** board){
+
     char filePath[40];
     int i,j;
-    char string[10];
     FILE* stream;
     printf("\n please enter file path:");
     
     scanf("%s", filePath);
     stream = fopen(filePath, "w");
-    
-//    i=0;
-//    for(j=0;j<50;j++)
-//            {
-//    //            sprintf(string, "|%d.",j);
-//    //            fputs(string, stream);
-//                fputc(board[i][j], stream);
-//                fputc('|', stream);
-//
-//            }
-    
-//     fputc('\n', stream);
-    
+
     
     for(i=32;i<95;i++)
     {
         for(j=0;j<95;j++)
         {
-//            sprintf(string, "|%d.",j);
-//            fputs(string, stream);
             fputc(board[i-' '][j], stream);
             fputc('|', stream);
                  
            
         }
         fputc('\n', stream);
-    
     }
     
     fclose(stream);
-    
-    
-    
-    
 }
