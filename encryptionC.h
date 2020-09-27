@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define ASCII 95;
-#define MAXPATHLEN 30
+#define ASCII 96;
+#define MAXPATHLEN 50
 #define MAXWORD 26
 #define ENGLISH 26
 

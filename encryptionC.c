@@ -15,8 +15,8 @@ static char** createBoard(void);
 static int wordIsValid(char* word);
 static long int getFileSize(FILE* stream);
 static char* getTextFromFile(FILE* stream, long int size);
-static void encryption(char* text,char** board,char* word);
-static void decryption(char* text,char** board,char* word);
+static void encryption(char* text,char** board,char* word,long int size);
+static void decryption(char* text,char** board,char* word,long int size);
 static void myFreeBoard(char** board);
 static void writeBackToFile(char* text, FILE* stream,long int fileSize);
 static int getOffset(char** board,int j,int k);
@@ -33,6 +33,9 @@ void appManager(void){
     int in;
     char** board = createBoard();
     char filePath[100];
+    //createBoardInFile(board);
+    
+
 
     printf("Welcome. Please enter file path:");
     scanf("%s", filePath);
@@ -62,7 +65,7 @@ char* word = getWordFromUser();
 long int fileSize = getFileSize(stream);
 char* text = getTextFromFile(stream, fileSize);
 
-encryption(text, board, word);
+encryption(text, board, word,fileSize);
 //
 printf("\n\n||%s||\n\n",text);
 
@@ -81,7 +84,7 @@ void decrypt(char* filePath, char** board){
     long int fileSize = getFileSize(stream);
     char* text = getTextFromFile(stream, fileSize);
 
-    decryption(text,board,word);
+    decryption(text,board,word,fileSize);
     
     printf("\n\n||%s||\n\n",text);
 
@@ -113,8 +116,8 @@ static char* getWordFromUser(void){
 }
 static char** createBoard(void){
 
-    //building 127*127 board (according to ascii table)
-    int numLetters = ASCII;
+    
+    int numLetters = ASCII ;
     int i,j;
     char** board;
     unsigned char letter;
@@ -127,9 +130,14 @@ static char** createBoard(void){
         letter = ' '+i;
         for(j=0;j<numLetters;j++)
         {
-            board[i][j] = letter;
+            if (letter == 127)
+                board[i][j] = '\n';
+            else
+                board[i][j] = letter;
+                        
             letter++;
-            if(letter> 126)
+            
+            if(letter> 127)
                 
                letter = ' ';
         }
@@ -171,28 +179,37 @@ static long int getFileSize(FILE* stream){
 static char* getTextFromFile(FILE* stream, long int size){
 
     long int i;
-    char* text = (char*)malloc(size+1* sizeof(char));
+    char token;
+    char* text = (char*)malloc((size+1)* sizeof(char));
     
     for(i=0;i<size;i++)
     {
-        text[i] = fgetc(stream);
+        token = fgetc(stream);
+        //debug
+        if(token =='\0')
+            printf("\n zero is here %d\n", i);
+        //
+        text[i] = token;
     }
     text[i]='\0';
     
     return text;
 }
-static void encryption(char* text,char** board,char* word){
+static void encryption(char* text,char** board,char* word,long int size){
 
     int i = 0,l = 0;
     char j,k;
 
-    while(text[i]!='\0')  //running thorugh the text
+    for(i=0;i<size;i++)  //running thorugh the text
     {
         j = text[i]; //getting the current letter in text
         k = word [l];  // getting the index of current letter in encripyion word
 
-        text[i] = board[k-' '][j-' ']; //swap the current letter in text with board according to index
-
+        if(j=='\n')
+            text[i] = board[k-' '][127-' '];
+        else
+            text[i] = board[k-' '][j-' ']; //swap the current letter in text with board according to index
+            
         l++;
         i++;
 
@@ -200,27 +217,18 @@ static void encryption(char* text,char** board,char* word){
             l = 0;
     }
 }
-static void decryption(char* text,char** board,char* word){
+static void decryption(char* text,char** board,char* word,long int size){
 
     
     int i = 0,l = 0,m;
     char j,k;
 
-    while(text[i]!='\0')  //running thorugh the text
+    for(i=0;i<size;i++)  //running thorugh the text
     {
         j = text[i]; //getting the current letter in text
         k = word [l];  // getting the index of current letter in encripyion word
         m = getOffset(board,j,k);
         
-
-        ///
-        //printf("|this is first:%c|\n",board['A'-' '][m]);
-        //printf("text: %s",text);
-        ///
-        
-        
-        
-        //text[i] = board[0][i];
         text[i] = board[0][m]; //swap the current letter in text with board according to index
 
         l++;
@@ -263,8 +271,10 @@ static int getOffset(char** board,int j,int k){
         m = (j - k);
     }
     
+        
     else
-        m = 95 -(k - j);
+        m = 96 -(k - j);
+    
     return m;
 }
 
@@ -285,7 +295,7 @@ static void printBoard(char** board){
 static void createBoardInFile(char** board){
 
     char filePath[40];
-    int i,j;
+    int i,j,len = ASCII;
     FILE* stream;
     printf("\n please enter file path:");
     
@@ -293,9 +303,9 @@ static void createBoardInFile(char** board){
     stream = fopen(filePath, "w");
 
     
-    for(i=32;i<95;i++)
+    for(i=32;i<len;i++)
     {
-        for(j=0;j<95;j++)
+        for(j=0;j<len;j++)
         {
             fputc(board[i-' '][j], stream);
             fputc('|', stream);
